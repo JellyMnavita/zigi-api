@@ -57,7 +57,7 @@ class ProductService
 
         $existingProduct = $this->em->getRepository(Product::class)->findOneBy(['name' => $productData['name']]);
         if ($existingProduct) {
-            throw new \Exception("La Produit spécifié existe déjà.");
+            throw new \Exception("Le Produit ".$existingProduct->getName()." spécifié existe déjà.");
         }
 
         $product = $this->productRepository->addProduct($product);
@@ -126,8 +126,28 @@ class ProductService
      */
     public function listProducts(): array
     {
-        return $this->productRepository->findAll(); // Retourner tous les produits
+        $products = $this->em->getRepository(Product::class)->findAll(); 
+        
+        $myProArray = []; // Initialisation du tableau
+        foreach ($products as $pro) {
+            $photos = []; // Tableau pour stocker les photos liées au produit
+            foreach ($pro->getSendPhotos() as $photo) {
+                $photos[] = $photo->getUrl(); // On suppose que `getUrl()` donne l'URL de la photo
+            }
+    
+            $myProArray[] = [
+                'id' => $pro->getId(),
+                'categorie' => $pro->getIdCat()->getName(),
+                'name' => $pro->getName(),
+                'description' => $pro->getDescription(),
+                'prix' => $pro->getPrice(),
+                'photos' => $photos // Ajouter les photos à la réponse
+            ];
+        }
+    
+        return $myProArray;
     }
+    
 
     /**
      * Ajoute une nouvelle catégorie.

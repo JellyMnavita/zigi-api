@@ -38,9 +38,16 @@ class Product
     #[ORM\OneToMany(targetEntity: DetailsCommand::class, mappedBy: 'id_Produit')]
     private Collection $detailsCommands;
 
+    /**
+     * @var Collection<int, SendPhoto>
+     */
+    #[ORM\OneToMany(targetEntity: PhotoProduct::class, mappedBy: 'idProduct')]
+    private Collection $sendPhotos;
+
     public function __construct()
     {
         $this->detailsCommands = new ArrayCollection();
+        $this->sendPhotos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -132,6 +139,36 @@ class Product
             // set the owning side to null (unless already changed)
             if ($detailsCommand->getIdProduit() === $this) {
                 $detailsCommand->setIdProduit(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PhotoProduct>
+     */
+    public function getSendPhotos(): Collection
+    {
+        return $this->sendPhotos;
+    }
+
+    public function addSendPhoto(PhotoProduct $sendPhoto): static
+    {
+        if (!$this->sendPhotos->contains($sendPhoto)) {
+            $this->sendPhotos->add($sendPhoto);
+            $sendPhoto->setIdUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSendPhoto(PhotoProduct $sendPhoto): static
+    {
+        if ($this->sendPhotos->removeElement($sendPhoto)) {
+            // set the owning side to null (unless already changed)
+            if ($sendPhoto->getIdUser() === $this) {
+                $sendPhoto->setIdUser(null);
             }
         }
 

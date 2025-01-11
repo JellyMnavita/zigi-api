@@ -45,25 +45,40 @@ class ProductController extends AbstractController
      * @return JsonResponse La réponse JSON contenant le message de succès ou d'erreur.
      */
     #[Route('/api/orders/addProduct/{idAdmin}', name: 'app_newProduct', methods: ['POST'])]
-    public function executeAddProduct(int $idAdmin,
-    Request $request, ProductService $productService): JsonResponse
+    public function executeAddProduct(int $idAdmin, Request $request, ProductService $productService): JsonResponse
     {
         try {
+            // Récupération des données envoyées dans la requête
             $data = json_decode($request->getContent(), true);
-            $product = $productService->addProduct($data, $idAdmin);
-
-            return new JsonResponse(['message' => 'Produit ajouté avec succès',
-                                     'Produit'=>[
-                                        'id'=>$product->getId(),
-                                        'name'=>$product->getName(),
-                                        'price' =>$product->getPrice(),
-                                        'Categorie' =>$product->getIdCat()->getName()
-                                     ]], JsonResponse::HTTP_CREATED);
+            
+            // Vérifie si les données sont un tableau de produits
+            if (!isset($data['products']) || !is_array($data['products'])) {
+                throw new \Exception("La clé 'products' doit être un tableau.");
+            }
+            
+            $addedProducts = [];
+            foreach ($data['products'] as $productData) {
+                // Ajout de chaque produit
+                $product = $productService->addProduct($productData, $idAdmin);
+                $addedProducts[] = [
+                    'id' => $product->getId(),
+                    'name' => $product->getName(),
+                    'price' => $product->getPrice(),
+                    'Categorie' => $product->getIdCat()->getName()
+                ];
+            }
+    
+            // Réponse avec la liste des produits ajoutés
+            return new JsonResponse([
+                'message' => 'Produits ajoutés avec succès',
+                'Produits' => $addedProducts
+            ], JsonResponse::HTTP_CREATED);
+            
         } catch (\Exception $e) {
-            return $this->json(['error'=>$e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
+            return $this->json(['error' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }
     }
-
+                  
     /**
      * Modifie un produit existant.
      *
@@ -121,7 +136,8 @@ class ProductController extends AbstractController
     public function executeListProducts(ProductService $productService): JsonResponse
     {
         $products = $productService->listProducts();
-        return new JsonResponse($products, JsonResponse::HTTP_OK);
+        return new JsonResponse($products
+        , JsonResponse::HTTP_OK);
     }
 
     /**
