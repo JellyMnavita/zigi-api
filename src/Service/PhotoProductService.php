@@ -15,7 +15,6 @@ class PhotoProductService
 
     public function __construct(ImgBBService $cloud, EntityManagerInterface $em)
     {
-
         $this->imgBBService = $cloud;
         $this->em = $em;
     }

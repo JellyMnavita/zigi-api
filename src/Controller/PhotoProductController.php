@@ -13,13 +13,13 @@ class PhotoProductController extends AbstractController
 {
     #[Route('/api/orders/addPhotoProduct/{idAdmin}/{idProduct}', name: 'app_newpho', methods: ['POST'])]
     public function executeAddPhoto(int $idAdmin,int $idProduct,
-    HttpFoundationRequest $request,PhotoProductService $productService): JsonResponse
+    HttpFoundationRequest $request,PhotoProductService $photoProductService): JsonResponse
     {
         try {
 
             $file = $request->files->get('photo');
             
-            $data = $productService->sendPhotoProduct($idAdmin,$idProduct,$file);
+            $data = $photoProductService->sendPhotoProduct($idAdmin,$idProduct,$file);
 
             return new JsonResponse(['message' => 'Image inserée avec succés',
                                      'data'=> $data
