@@ -238,7 +238,18 @@ class ProductService
      */
     public function listCategories(): array
     {
-        return $this->em->getRepository(Categorie::class)->findAll(); // Retourner toutes les catégories
+        $category = $this->em->getRepository(Categorie::class)->findAll();
+
+        $myCategorie = [];
+        foreach ($category as $cat){
+            $myCategorie[] =[
+                'id' => $cat->getId(),
+                'name' => $cat->getName(),
+                'description' => $cat->getDescription()
+            ];
+        }
+        return $myCategorie; // Retourner toutes les catégories
+
     }
 
     public function removeProduct(int $productId, int $adminId): array
